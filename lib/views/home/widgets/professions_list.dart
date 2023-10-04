@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:local_man/common/utils.dart';
 import 'package:local_man/theme/pallete.dart';
 import 'package:local_man/views/home/utils/professions_list.dart';
+import 'package:local_man/views/professions/views/profession_view.dart';
 
 class ProfessionsList extends ConsumerStatefulWidget {
   const ProfessionsList({super.key});
@@ -40,7 +42,13 @@ class _ProfessionsListState extends ConsumerState<ProfessionsList> {
               return InkWell(
                 borderRadius: BorderRadius.circular(15),
                 overlayColor: const MaterialStatePropertyAll(Pallete.color3),
-                onTap: () {},
+                onTap: () {
+                  setState(() {
+                    nextScreen(
+                        widget: ProfessionView(items[index].name),
+                        context: context);
+                  });
+                },
                 child: Card(
                   color: Pallete.color4,
                   clipBehavior: Clip.antiAlias,
