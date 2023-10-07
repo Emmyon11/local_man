@@ -45,8 +45,7 @@ class _ProfessionsListState extends ConsumerState<ProfessionsList> {
                 onTap: () {
                   setState(() {
                     nextScreen(
-                        widget: ProfessionView(items[index].name),
-                        context: context);
+                        widget: ProfessionView(items[index]), context: context);
                   });
                 },
                 child: Card(

@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:local_man/common/loading_view.dart';
 import 'package:local_man/common/snackbar.dart';
 import 'package:local_man/common/utils.dart';
@@ -18,6 +21,23 @@ class UpdatePage extends ConsumerStatefulWidget {
 
 class _UpdatePageState extends ConsumerState<UpdatePage> {
   final _formKey = GlobalKey<FormState>();
+  File? image;
+  String? imageUrl;
+
+  void onPickImages() async {
+    final ImagePicker picker = ImagePicker();
+    final xImage = await picker.pickImage(source: ImageSource.gallery);
+    if (xImage != null) image = File(xImage.path);
+
+    setState(() {});
+  }
+
+  Future<String> saveImage({required File file}) async {
+    final filePath = await ref
+        .read(userControllerProvider.notifier)
+        .saveUserImage(file: file);
+    return filePath;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +79,38 @@ class _UpdatePageState extends ConsumerState<UpdatePage> {
                             fontSize: 25,
                             fontWeight: FontWeight.w700,
                             color: Pallete.color4),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(5),
+                        overlayColor:
+                            const MaterialStatePropertyAll(Pallete.color4),
+                        onTap: onPickImages,
+                        child: Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                              color: Pallete.color2,
+                              borderRadius: BorderRadius.circular(10)),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  "update your profile image",
+                                  style: TextStyle(
+                                      fontSize: 20, color: Pallete.color4),
+                                ),
+                                image != null
+                                    ? CircleAvatar(
+                                        backgroundImage:
+                                            AssetImage(image!.path))
+                                    : const Icon(
+                                        Icons.add_a_photo,
+                                        color: Pallete.color3,
+                                      )
+                              ]),
+                        ),
                       ),
                       const SizedBox(
                         height: 20,
@@ -275,8 +327,14 @@ class _UpdatePageState extends ConsumerState<UpdatePage> {
                       ),
                       SizedBox(
                         child: ElevatedButton.icon(
+                          style: const ButtonStyle(
+                              backgroundColor:
+                                  MaterialStatePropertyAll(Pallete.color2)),
                           onPressed: () async {
                             _formKey.currentState!.validate();
+                            if (image != null) {
+                              imageUrl = await saveImage(file: image!);
+                            }
 
                             final UserModel updatedUser = UserModel(
                                 fullName: fullName.text.isNotEmpty
@@ -305,22 +363,31 @@ class _UpdatePageState extends ConsumerState<UpdatePage> {
                                     : userData.phoneNo,
                                 customers: userData.customers.toList(),
                                 reviews: userData.reviews.toList(),
-                                profilePic: userData.profilePic,
+                                profilePic: imageUrl ?? userData.profilePic,
                                 showcaseImg: userData.showcaseImg.toList());
+
                             ref
                                 .read(userControllerProvider.notifier)
                                 .upDateUser(user: updatedUser)
-                                .onError((error, stackTrace) async {
+                                .onError((error, stackTrace) {
                               showSnackbar(context, error.toString());
                               return null;
                             });
-                            showSnackbar(
-                                context, "Profile updated sucessfully");
-                            nextScreenWithOutReplacement(
-                                widget: const HomeView(), context: context);
+                            if (context.mounted) {
+                              showSnackbar(
+                                  context, "Profile updated sucessfully");
+                              nextScreenWithOutReplacement(
+                                  widget: const HomeView(), context: context);
+                            }
                           },
-                          icon: Icon(loading ? Icons.circle : Icons.done),
-                          label: const Text('Submit'),
+                          icon: Icon(
+                            loading ? Icons.circle : Icons.done,
+                            color: Pallete.color4,
+                          ),
+                          label: const Text(
+                            'Submit',
+                            style: TextStyle(color: Pallete.color4),
+                          ),
                         ),
                       )
                     ],

@@ -38,6 +38,7 @@ dependencies:
   appwrite: ^11.0.0
   flutter_svg: ^2.0.7
   http: ^1.0.0
+  image_picker: ^1.0.4
 
 dev_dependencies:
   flutter_test:
@@ -64,6 +65,7 @@ flutter:
   assets:
     - assets/svg/
     - assets/images/professions/
+    - assets/images/common/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:local_man/common/utils.dart';
 import 'package:local_man/models/user_model.dart';
 import 'package:local_man/theme/pallete.dart';
 import 'package:local_man/views/home/widgets/professions_list.dart';
 import 'package:local_man/views/home/widgets/update_page.dart';
+import 'package:local_man/views/profile/profile_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   final UserModel userdata;
@@ -41,7 +43,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 height: 30,
               ),
               ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () async {},
                   icon: const Icon(Icons.add_business),
                   label: const Text('update business information')),
               const SizedBox(
@@ -81,15 +83,21 @@ class _HomePageState extends ConsumerState<HomePage> {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
-                CircleAvatar(
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      nextScreen(
+                          widget: ProfilePage(widget.userdata),
+                          context: context);
+                    });
+                  },
+                  child: CircleAvatar(
+                    backgroundImage: widget.userdata.profilePic.isNotEmpty
+                        ? NetworkImage(widget.userdata.profilePic)
+                        : null,
                     radius: 18,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(30),
-                      child: Image.network(
-                        widget.userdata.profilePic,
-                        fit: BoxFit.cover,
-                      ),
-                    )),
+                  ),
+                )
               ],
             ),
           ),

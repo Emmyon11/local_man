@@ -13,8 +13,11 @@ final userAPIProvider = Provider((ref) {
 
 abstract class IUser {
   Future<UserModel?> getCurrUserDocument();
+  Future<UserModel?> getUserDocument({required String userId});
   Future<Document?> updateUserCredential(
       {required String userId, required Map<String, dynamic> data});
+  Future<Document?> updateUserSingleField(
+      {required String userId, required String name, required String value});
 }
 
 class UserAPI implements IUser {
@@ -57,5 +60,34 @@ class UserAPI implements IUser {
     } catch (e) {
       rethrow;
     }
+  }
+
+  @override
+  Future<Document> updateUserSingleField(
+      {required String userId,
+      required String name,
+      required String value}) async {
+    try {
+      final Document updatedUser = await _databases.updateDocument(
+          databaseId: AppwriteConstants.databaseId,
+          collectionId: AppwriteConstants.userCollectionId,
+          documentId: userId,
+          data: {
+            name: [value]
+          });
+      return updatedUser;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<UserModel?> getUserDocument({required String userId}) async {
+    Document userDoc = await _databases.getDocument(
+        databaseId: AppwriteConstants.databaseId,
+        collectionId: AppwriteConstants.userCollectionId,
+        documentId: userId);
+    final userData = UserModel.fromMap(userDoc.data);
+    return userData;
   }
 }

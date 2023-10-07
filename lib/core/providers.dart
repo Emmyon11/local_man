@@ -16,3 +16,12 @@ final databaseProvider = Provider((ref) {
   final client = ref.watch(clientProvider);
   return Databases(client);
 });
+final storageProvider = Provider((ref) {
+  final client = ref.watch(clientProvider);
+  return Storage(client);
+});
+
+final appwriteRealtimeProvider = Provider((ref) {
+  final client = ref.watch(clientProvider);
+  return Realtime(client);
+});

@@ -7,13 +7,17 @@ import 'package:local_man/models/professions.dart';
 
 final professionAPIProvider = Provider((ref) {
   final databases = ref.watch(databaseProvider);
-  return ProfessionAPI(databases: databases);
+  final realtime = ref.watch(appwriteRealtimeProvider);
+  return ProfessionAPI(databases: databases, realtime: realtime);
 });
 
 class ProfessionAPI {
   final Databases _databases;
+  final Realtime _realtime;
 
-  ProfessionAPI({required Databases databases}) : _databases = databases;
+  ProfessionAPI({required Databases databases, required Realtime realtime})
+      : _databases = databases,
+        _realtime = realtime;
 
   Future<Document> saveProfession(
       {required ProfessionModel profession,
@@ -30,6 +34,23 @@ class ProfessionAPI {
     }
   }
 
+  Future<Document> joinProfession(
+      {required String id,
+      required String professionName,
+      required List<String> members}) async {
+    try {
+      members.add(id);
+      final response = await _databases.updateDocument(
+          databaseId: AppwriteConstants.databaseId,
+          collectionId: AppwriteConstants.professionsCollectionId,
+          documentId: '04102323$professionName',
+          data: {'members': members});
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<ProfessionModel> getProfession(
       {required String professionName}) async {
     final response = await _databases.getDocument(
@@ -39,5 +60,22 @@ class ProfessionAPI {
     );
     final profession = ProfessionModel.fromMap(response.data);
     return profession;
+  }
+
+  Future<ProfessionModel> getProfessionById(
+      {required String professionId}) async {
+    final response = await _databases.getDocument(
+      databaseId: AppwriteConstants.databaseId,
+      collectionId: AppwriteConstants.professionsCollectionId,
+      documentId: professionId,
+    );
+    final profession = ProfessionModel.fromMap(response.data);
+    return profession;
+  }
+
+  Stream<RealtimeMessage> getStreamofProfession() {
+    return _realtime.subscribe([
+      'databases.${AppwriteConstants.databaseId}.collections.${AppwriteConstants.professionsCollectionId}.documents'
+    ]).stream;
   }
 }
